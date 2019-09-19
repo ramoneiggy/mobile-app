@@ -1,9 +1,11 @@
 package com.isolaja.mobileapp.service;
 
+import com.isolaja.mobileapp.exceptions.UserServiceException;
 import com.isolaja.mobileapp.io.entity.UserEntity;
 import com.isolaja.mobileapp.io.repository.UserRepository;
 import com.isolaja.mobileapp.shared.Utils;
 import com.isolaja.mobileapp.shared.dto.UserDto;
+import com.isolaja.mobileapp.ui.model.response.ErrorMessages;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -57,6 +59,7 @@ public class UserServiceImpl implements UserService {
 
         UserDto returnValue = new UserDto();
         BeanUtils.copyProperties(userEntity, returnValue);
+
         return returnValue;
     }
 
@@ -68,6 +71,25 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException(userId);
         }
         BeanUtils.copyProperties(userEntity, returnValue);
+
+        return returnValue;
+    }
+
+    @Override
+    public UserDto updateUser(String userId, UserDto user) {
+        UserDto returnValue = new UserDto();
+        UserEntity userEntity = userRepository.findByUserId(userId);
+        if (userEntity == null) {
+            throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+        }
+
+        userEntity.setFirstName(user.getFirstName());
+        userEntity.setLastName(user.getLastName());
+
+        UserEntity updatedUserDetails = userRepository.save(userEntity);
+
+        BeanUtils.copyProperties(updatedUserDetails, returnValue);
+
         return returnValue;
     }
 
