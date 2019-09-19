@@ -5,6 +5,8 @@ import com.isolaja.mobileapp.service.UserService;
 import com.isolaja.mobileapp.shared.dto.UserDto;
 import com.isolaja.mobileapp.ui.model.request.UserDetailsRequestModel;
 import com.isolaja.mobileapp.ui.model.response.ErrorMessages;
+import com.isolaja.mobileapp.ui.model.response.OperationStatusModel;
+import com.isolaja.mobileapp.ui.model.response.RequestOperationStatus;
 import com.isolaja.mobileapp.ui.model.response.UserRest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -74,8 +77,14 @@ public class UserController {
         return returnValue;
     }
 
-    @DeleteMapping
-    public String deleteUser() {
-        return "delete user was called";
+    @DeleteMapping(path = "/{id}", produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public OperationStatusModel deleteUser(@PathVariable String id, @RequestHeader(value = "Authorization") String authorization) {
+        OperationStatusModel returnValue = new OperationStatusModel();
+        returnValue.setOperationName(RequestOperationName.DELETE.name());
+
+        userService.deleteUser(id, authorization);
+
+        returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+        return returnValue;
     }
 }

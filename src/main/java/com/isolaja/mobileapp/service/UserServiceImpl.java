@@ -3,6 +3,7 @@ package com.isolaja.mobileapp.service;
 import com.isolaja.mobileapp.exceptions.UserServiceException;
 import com.isolaja.mobileapp.io.entity.UserEntity;
 import com.isolaja.mobileapp.io.repository.UserRepository;
+import com.isolaja.mobileapp.shared.JwtUtil;
 import com.isolaja.mobileapp.shared.Utils;
 import com.isolaja.mobileapp.shared.dto.UserDto;
 import com.isolaja.mobileapp.ui.model.response.ErrorMessages;
@@ -21,11 +22,13 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private Utils utils;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private JwtUtil jwtUtil;
 
-    public UserServiceImpl(UserRepository userRepository, Utils utils, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, Utils utils, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.utils = utils;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -68,7 +71,7 @@ public class UserServiceImpl implements UserService {
         UserDto returnValue = new UserDto();
         UserEntity userEntity = userRepository.findByUserId(userId);
         if (userEntity == null) {
-            throw new UsernameNotFoundException(userId);
+            throw new UserServiceException("User with ID " + userId + " not found!");
         }
         BeanUtils.copyProperties(userEntity, returnValue);
 
@@ -91,6 +94,23 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(updatedUserDetails, returnValue);
 
         return returnValue;
+    }
+
+    @Override
+    public void deleteUser(String userId, String authorizationHeader) {
+
+        // check if user is trying to delete another user
+        String userIdFromHeader = jwtUtil.getUserId(authorizationHeader);
+        if (!userId.equalsIgnoreCase(userIdFromHeader)) {
+            throw new UserServiceException(ErrorMessages.OPERATION_NOT_ALLOWED.getErrorMessage());
+        }
+
+        // delete user
+        UserEntity userEntity = userRepository.findByUserId(userId);
+        if (userEntity == null) {
+            throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+        }
+        userRepository.delete(userEntity);
     }
 
     @Override

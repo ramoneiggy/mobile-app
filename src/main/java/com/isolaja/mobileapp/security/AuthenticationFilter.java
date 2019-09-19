@@ -5,6 +5,7 @@ import com.isolaja.mobileapp.SpringApplicationContext;
 import com.isolaja.mobileapp.service.UserService;
 import com.isolaja.mobileapp.shared.dto.UserDto;
 import com.isolaja.mobileapp.ui.model.request.UserLoginRequestModel;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,15 +45,18 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         String userName = ((User) authResult.getPrincipal()).getUsername();
 
+        UserService userService = (UserService) SpringApplicationContext.getBean("userServiceImpl");
+        UserDto userDto = userService.getUser(userName);
+
+        Claims claims = Jwts.claims();
+        claims.put("userId", userDto.getUserId());
+
         String token = Jwts.builder()
+                .setClaims(claims)
                 .setSubject(userName)
                 .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SecurityConstants.getTokenSecret())
                 .compact();
-
-        UserService userService = (UserService) SpringApplicationContext.getBean("userServiceImpl");
-
-        UserDto userDto = userService.getUser(userName);
 
         response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
         response.addHeader("UserId", userDto.getUserId());
