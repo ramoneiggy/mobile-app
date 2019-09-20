@@ -17,7 +17,7 @@ public class JwtUtil {
     public String getUserId(String header) {
         String token = header.replace("Bearer", "");
 
-        Claims claims = Jwts.parser().setSigningKey(environment.getProperty("tokenSecret"))
+        Claims claims = Jwts.parser().setSigningKey(environment.getProperty("token-secret"))
                 .parseClaimsJws(token).getBody();
 
         if (claims == null) {
