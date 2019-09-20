@@ -3,10 +3,10 @@ package com.isolaja.mobileapp.shared.dto;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 public class UserDto implements Serializable {
-
     private static final long serialVersionUID = -550752674057501128L;
     private long id;
     private String userId;
@@ -17,4 +17,5 @@ public class UserDto implements Serializable {
     private String encryptedPassword;
     private String emailVerificationToken;
     private Boolean emailVerificationStatus = false;
+    private List<AddressDTO> addresses;
 }

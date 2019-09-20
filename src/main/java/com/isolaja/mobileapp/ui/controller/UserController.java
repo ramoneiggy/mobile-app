@@ -9,6 +9,7 @@ import com.isolaja.mobileapp.ui.model.response.OperationStatusModel;
 import com.isolaja.mobileapp.ui.model.response.RequestOperationStatus;
 import com.isolaja.mobileapp.ui.model.response.UserRest;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -42,18 +43,15 @@ public class UserController {
             produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
 
-        UserRest returnValue = new UserRest();
-
         if (userDetails.getFirstName().isEmpty())
             throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 
-        UserDto userDto = new UserDto();
-        BeanUtils.copyProperties(userDetails, userDto);
+        ModelMapper modelMapper = new ModelMapper();
+        UserDto userDto = modelMapper.map(userDetails, UserDto.class);
 
         UserDto createdUser = userService.createUser(userDto);
-        BeanUtils.copyProperties(createdUser, returnValue);
 
-        return returnValue;
+        return modelMapper.map(createdUser, UserRest.class);
     }
 
     @PutMapping(path = "{id}",

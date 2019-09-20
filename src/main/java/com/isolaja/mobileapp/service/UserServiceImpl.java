@@ -5,8 +5,10 @@ import com.isolaja.mobileapp.io.entity.UserEntity;
 import com.isolaja.mobileapp.io.repository.UserRepository;
 import com.isolaja.mobileapp.shared.JwtUtil;
 import com.isolaja.mobileapp.shared.Utils;
+import com.isolaja.mobileapp.shared.dto.AddressDTO;
 import com.isolaja.mobileapp.shared.dto.UserDto;
 import com.isolaja.mobileapp.ui.model.response.ErrorMessages;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -42,18 +44,22 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Record already exists");
         }
 
-        UserEntity userEntity = new UserEntity();
-        BeanUtils.copyProperties(user, userEntity);
+        for (int i = 0; i < user.getAddresses().size(); i++) {
+            AddressDTO address = user.getAddresses().get(i);
+            address.setUserDetails(user);
+            address.setAddressId(utils.generateAddressId(30));
+            user.getAddresses().set(i, address);
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        UserEntity userEntity = modelMapper.map(user, UserEntity.class);
 
         userEntity.setUserId(utils.generateUserId(30));
         userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 
         UserEntity storedUserDetails = userRepository.save(userEntity);
 
-        UserDto returnValue = new UserDto();
-        BeanUtils.copyProperties(storedUserDetails, returnValue);
-
-        return returnValue;
+        return modelMapper.map(storedUserDetails, UserDto.class);
     }
 
     @Override
