@@ -1,19 +1,20 @@
 package com.isolaja.mobileapp.ui.controller;
 
 import com.isolaja.mobileapp.exceptions.UserServiceException;
+import com.isolaja.mobileapp.service.AddressService;
 import com.isolaja.mobileapp.service.UserService;
+import com.isolaja.mobileapp.shared.dto.AddressDTO;
 import com.isolaja.mobileapp.shared.dto.UserDto;
 import com.isolaja.mobileapp.ui.model.request.UserDetailsRequestModel;
-import com.isolaja.mobileapp.ui.model.response.ErrorMessages;
-import com.isolaja.mobileapp.ui.model.response.OperationStatusModel;
-import com.isolaja.mobileapp.ui.model.response.RequestOperationStatus;
-import com.isolaja.mobileapp.ui.model.response.UserRest;
+import com.isolaja.mobileapp.ui.model.response.*;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,9 +24,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final AddressService addressService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, AddressService addressService) {
         this.userService = userService;
+        this.addressService = addressService;
     }
 
     @GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
@@ -91,6 +94,21 @@ public class UserController {
             UserRest userModel = new UserRest();
             BeanUtils.copyProperties(userDto, userModel);
             returnValue.add(userModel);
+        }
+
+        return returnValue;
+    }
+
+    @GetMapping(value = "/{id}/addresses", produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public List<AddressesRest> getUserAddresses(@PathVariable String id) {
+        List<AddressesRest> returnValue = new ArrayList<>();
+
+        List<AddressDTO> addressDTO = addressService.getAddress(id);
+
+        if (addressDTO != null && !addressDTO.isEmpty()) {
+            Type listType = new TypeToken<List<AddressesRest>>() {
+            }.getType();
+            returnValue = new ModelMapper().map(addressDTO, listType);
         }
 
         return returnValue;

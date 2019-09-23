@@ -1,8 +1,9 @@
-package com.isolaja.mobileapp.service;
+package com.isolaja.mobileapp.service.impl;
 
 import com.isolaja.mobileapp.exceptions.UserServiceException;
 import com.isolaja.mobileapp.io.entity.UserEntity;
 import com.isolaja.mobileapp.io.repository.UserRepository;
+import com.isolaja.mobileapp.service.UserService;
 import com.isolaja.mobileapp.shared.JwtUtil;
 import com.isolaja.mobileapp.shared.Utils;
 import com.isolaja.mobileapp.shared.dto.AddressDTO;
