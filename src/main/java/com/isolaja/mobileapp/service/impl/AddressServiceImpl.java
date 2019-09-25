@@ -24,7 +24,7 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public List<AddressDTO> getAddress(String userId) {
+    public List<AddressDTO> getAddresses(String userId) {
         List<AddressDTO> returnValue = new ArrayList<>();
         ModelMapper modelMapper = new ModelMapper();
 
@@ -34,6 +34,18 @@ public class AddressServiceImpl implements AddressService {
         Iterable<AddressEntity> addresses = addressRepository.findAllByUserDetails(userEntity);
         for (AddressEntity addressEntity : addresses) {
             returnValue.add(modelMapper.map(addressEntity, AddressDTO.class));
+        }
+
+        return returnValue;
+    }
+
+    @Override
+    public AddressDTO getAddress(String addressId) {
+        AddressDTO returnValue = null;
+        AddressEntity addressEntity = addressRepository.findByAddressId(addressId);
+
+        if (addressEntity != null) {
+            returnValue = new ModelMapper().map(addressEntity, AddressDTO.class);
         }
 
         return returnValue;

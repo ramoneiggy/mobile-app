@@ -5,5 +5,7 @@ import com.isolaja.mobileapp.shared.dto.AddressDTO;
 import java.util.List;
 
 public interface AddressService {
-    List<AddressDTO> getAddress(String userId);
+    List<AddressDTO> getAddresses(String userId);
+
+    AddressDTO getAddress(String addressId);
 }

@@ -103,7 +103,7 @@ public class UserController {
     public List<AddressesRest> getUserAddresses(@PathVariable String id) {
         List<AddressesRest> returnValue = new ArrayList<>();
 
-        List<AddressDTO> addressDTO = addressService.getAddress(id);
+        List<AddressDTO> addressDTO = addressService.getAddresses(id);
 
         if (addressDTO != null && !addressDTO.isEmpty()) {
             Type listType = new TypeToken<List<AddressesRest>>() {
@@ -113,4 +113,12 @@ public class UserController {
 
         return returnValue;
     }
+
+    @GetMapping(value = "/{id}/addresses/{addressId}", produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public AddressesRest getUserAddress(@PathVariable String addressId) {
+        AddressDTO addressDTO = addressService.getAddress(addressId);
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(addressDTO, AddressDTO.class);
+    }
+
 }
