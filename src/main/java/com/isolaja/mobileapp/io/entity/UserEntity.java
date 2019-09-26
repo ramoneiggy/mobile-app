@@ -1,6 +1,8 @@
 package com.isolaja.mobileapp.io.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -8,6 +10,7 @@ import java.util.List;
 
 @Data
 @Entity(name = "users")
+@ToString(exclude = {"addresses"})
 public class UserEntity implements Serializable {
     private static final long serialVersionUID = 5313493413859894403L;
 
@@ -36,5 +39,6 @@ public class UserEntity implements Serializable {
     private Boolean emailVerificationStatus = false;
 
     @OneToMany(mappedBy = "userDetails", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<AddressEntity> addresses;
 }

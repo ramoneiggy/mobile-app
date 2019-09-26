@@ -1,12 +1,15 @@
 package com.isolaja.mobileapp.io.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Data
 @Entity(name = "addresses")
+@ToString(exclude = {"userDetails"})
 public class AddressEntity implements Serializable {
     private static final long serialVersionUID = 5748960471357034357L;
 
@@ -34,5 +37,6 @@ public class AddressEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "users_id")
+    @JsonIgnore
     private UserEntity userDetails;
 }
